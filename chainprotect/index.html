@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <title>팔로잉 제외기</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  </head>
+  <body>
+    <div class="container">
+        <h2 class="mt-2">맞팔 체인블락 피폭 방지기 by <a href="https://twitter.com/dabrewdanya" target="_blank">다브류</a></h2>
+        <p class="lead">체인블락 교집합 제거</p>
+		<p>팔로우하고 싶은 계정이
+        이미 나를 블락했는데, 이 계정에게 체인블락을 돌리고 싶다면,
+        부계정이나 시크릿 모드를 이용해서 나와 해당 계정의 팔로워 리스트를 추출한 후, 추출한 데이터를 각각 넣어준 후 실행하시면 됩니다.</p>
+        <div class="form-group">
+            <label for="o_json">체블 돌릴 사람의 팔로워 json</label>
+            <textarea class="form-control" id="o_json" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="f_json">내 팔로워 json</label>
+            <textarea class="form-control" id="f_json" rows="3"></textarea>
+        </div>
+        <button type="button" id="remove_btn" class="btn btn-primary btn-lg btn-block">교집합 제외하기</button>
+        <div class="form-group">
+            <label for="r_json">결과</label>
+            <textarea class="form-control" id="r_json" rows="3"></textarea>
+        </div>
+    </div>
+      
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.0/jquery.min.js" integrity="sha256-BJeo0qm959uMBGb65z40ejJYGSgR7REI4+CW1fNKwOg=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <a id="downloadAnchorElem" style="display:none"></a>
+    <script>
+        $("#remove_btn").click(function() {
+            var o = JSON.parse($("#o_json").val());
+            var f = JSON.parse($("#f_json").val());
+
+            var f_list = {};
+
+            $.each(f.users, function(i, user) {
+                f_list[user.id] = user.name;
+                console.log(user.name + "(" + user.id + ") f 리스트에 추가");
+            });
+
+            var result = [];
+
+            $.each(o.users, function(i, user) {
+                if(!f_list[user.id]) {
+                    result.push({"id": user.id, "name": user.name});
+                    console.log(user.name + "(" + user.id + ") 결과에 추가");
+                } else {
+                    console.log(user.name + "(" + user.id + ")는 교집합이라 추가하지 않음");
+                }
+            });
+
+
+            $("#r_json").val(JSON.stringify({"users": result, "type": o.type, "connection": o.connection, "on": o.on}));
+           
+            var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({"users": result, "type": o.type, "connection": o.connection, "on": o.on}));
+            var dlAnchorElem = document.getElementById('downloadAnchorElem');
+            dlAnchorElem.setAttribute("href",     dataStr     );
+            dlAnchorElem.setAttribute("download", "result.json");
+            dlAnchorElem.click();
+        })
+
+
+    </script>
+  </body>
+</html>
